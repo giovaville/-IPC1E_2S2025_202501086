@@ -9,5 +9,24 @@ package proyecto1_ipc1.modelo;
  * @author Gio
  */
 public class HistorialPrestamos {
-    
+
+    private NodoPrestamo cabeza;
+
+    public HistorialPrestamos() {
+        cabeza = null;
+    }
+
+    public void agregarInicio(Prestamo prestamo) {
+        NodoPrestamo nuevo = new NodoPrestamo(prestamo);
+        nuevo.siguiente = cabeza;
+        cabeza = nuevo;
+    }
+
+    public NodoPrestamo getCabeza() {
+        return cabeza;
+    }
+
+    public boolean estaVacio() {
+        return cabeza == null;
+    }
 }

@@ -9,5 +9,12 @@ package proyecto1_ipc1.modelo;
  * @author Gio
  */
 public class NodoPrestamo {
-    
+
+    public Prestamo prestamo;
+    public NodoPrestamo siguiente;
+
+    public NodoPrestamo(Prestamo prestamo) {
+        this.prestamo = prestamo;
+        this.siguiente = null;
+    }
 }
