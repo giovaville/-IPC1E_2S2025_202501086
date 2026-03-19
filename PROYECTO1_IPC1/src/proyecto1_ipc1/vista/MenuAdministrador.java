@@ -63,8 +63,14 @@ public class MenuAdministrador extends JFrame {
 
         add(panel);
 
-        btnOperadores.addActionListener(e -> JOptionPane.showMessageDialog(this, "Vista de operadores pendiente."));
-        btnLibros.addActionListener(e -> JOptionPane.showMessageDialog(this, "Vista de libros pendiente."));
+        btnLibros.addActionListener(e -> {
+    LibrosVista vista = new LibrosVista(sistema);
+    vista.setVisible(true);
+        });
+        btnLibros.addActionListener(e -> {
+    LibrosVista vista = new LibrosVista(sistema);
+    vista.setVisible(true);
+        });
         btnEstudiantes.addActionListener(e -> JOptionPane.showMessageDialog(this, "Vista de estudiantes pendiente."));
         btnPrestamos.addActionListener(e -> JOptionPane.showMessageDialog(this, "Vista de préstamos pendiente."));
         btnReportes.addActionListener(e -> JOptionPane.showMessageDialog(this, "Vista de reportes pendiente."));
