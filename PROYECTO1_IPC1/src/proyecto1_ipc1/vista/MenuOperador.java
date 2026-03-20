@@ -62,7 +62,10 @@ public class MenuOperador extends JFrame {
 
         btnLibros.addActionListener(e -> JOptionPane.showMessageDialog(this, "Vista de libros pendiente."));
         btnEstudiantes.addActionListener(e -> JOptionPane.showMessageDialog(this, "Vista de estudiantes pendiente."));
-        btnPrestamos.addActionListener(e -> JOptionPane.showMessageDialog(this, "Vista de préstamos pendiente."));
+        btnPrestamos.addActionListener(e -> {
+    PrestamosVista vista = new PrestamosVista(sistema);
+    vista.setVisible(true);
+        });
         btnReportes.addActionListener(e -> JOptionPane.showMessageDialog(this, "Vista de reportes pendiente."));
         btnSalir.addActionListener(e -> cerrarSesion());
     }

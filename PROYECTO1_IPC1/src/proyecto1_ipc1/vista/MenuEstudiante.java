@@ -59,8 +59,11 @@ public class MenuEstudiante extends JFrame {
         panel.add(btnSalir);
 
         add(panel);
-
-        btnPrestamo.addActionListener(e -> JOptionPane.showMessageDialog(this, "Vista de préstamos pendiente."));
+        
+        btnPrestamo.addActionListener(e -> {
+    PrestamosVista vista = new PrestamosVista(sistema);
+    vista.setVisible(true);
+        });
         btnHistorial.addActionListener(e -> JOptionPane.showMessageDialog(this, "Vista de historial pendiente."));
         btnDatos.addActionListener(e -> mostrarDatos());
         btnLibros.addActionListener(e -> JOptionPane.showMessageDialog(this, "Vista de libros pendiente."));

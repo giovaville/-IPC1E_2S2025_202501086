@@ -72,7 +72,10 @@ public class MenuAdministrador extends JFrame {
     vista.setVisible(true);
         });
         btnEstudiantes.addActionListener(e -> JOptionPane.showMessageDialog(this, "Vista de estudiantes pendiente."));
-        btnPrestamos.addActionListener(e -> JOptionPane.showMessageDialog(this, "Vista de préstamos pendiente."));
+        btnPrestamos.addActionListener(e -> {
+    PrestamosVista vista = new PrestamosVista(sistema);
+    vista.setVisible(true);
+        });
         btnReportes.addActionListener(e -> JOptionPane.showMessageDialog(this, "Vista de reportes pendiente."));
         btnSalir.addActionListener(e -> cerrarSesion());
     }
