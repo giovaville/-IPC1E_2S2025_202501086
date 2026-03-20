@@ -10,7 +10,6 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import proyecto1_ipc1.controlador.ControlBiblioteca;
@@ -63,20 +62,31 @@ public class MenuAdministrador extends JFrame {
 
         add(panel);
 
-        btnLibros.addActionListener(e -> {
-    LibrosVista vista = new LibrosVista(sistema);
-    vista.setVisible(true);
+        btnOperadores.addActionListener(e -> {
+            UsuariosVista vista = new UsuariosVista(sistema);
+            vista.setVisible(true);
         });
+
         btnLibros.addActionListener(e -> {
-    LibrosVista vista = new LibrosVista(sistema);
-    vista.setVisible(true);
+            LibrosVista vista = new LibrosVista(sistema);
+            vista.setVisible(true);
         });
-        btnEstudiantes.addActionListener(e -> JOptionPane.showMessageDialog(this, "Vista de estudiantes pendiente."));
+
+        btnEstudiantes.addActionListener(e -> {
+            UsuariosVista vista = new UsuariosVista(sistema);
+            vista.setVisible(true);
+        });
+
         btnPrestamos.addActionListener(e -> {
-    PrestamosVista vista = new PrestamosVista(sistema);
-    vista.setVisible(true);
+            PrestamosVista vista = new PrestamosVista(sistema);
+            vista.setVisible(true);
         });
-        btnReportes.addActionListener(e -> JOptionPane.showMessageDialog(this, "Vista de reportes pendiente."));
+
+        btnReportes.addActionListener(e -> {
+            ReportesVista vista = new ReportesVista(sistema);
+            vista.setVisible(true);
+        });
+
         btnSalir.addActionListener(e -> cerrarSesion());
     }
 
