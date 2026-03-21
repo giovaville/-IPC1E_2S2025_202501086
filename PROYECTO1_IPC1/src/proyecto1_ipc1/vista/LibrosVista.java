@@ -18,6 +18,7 @@ import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 import proyecto1_ipc1.controlador.ControlBiblioteca;
 import proyecto1_ipc1.modelo.Libro;
+
 /**
  *
  * @author Gio
@@ -33,9 +34,14 @@ public class LibrosVista extends JFrame {
     private JTextField txtGenero;
     private JTextField txtAnio;
     private JTextField txtCantidad;
+    private JTextField txtBuscar;
 
     private JButton btnRegistrar;
-    private JButton btnRefrescar;
+    private JButton btnModificar;
+    private JButton btnEliminar;
+    private JButton btnBuscarCodigo;
+    private JButton btnBuscarNombre;
+    private JButton btnMostrarTodos;
     private JButton btnLimpiar;
 
     private JTable tablaLibros;
@@ -44,12 +50,12 @@ public class LibrosVista extends JFrame {
     public LibrosVista(ControlBiblioteca sistema) {
         this.sistema = sistema;
         inicializarComponentes();
-        cargarTabla();
+        cargarTablaCompleta();
     }
 
     private void inicializarComponentes() {
         setTitle("Gestión de Libros");
-        setSize(950, 500);
+        setSize(1050, 560);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setResizable(false);
@@ -57,7 +63,7 @@ public class LibrosVista extends JFrame {
         JPanel panelPrincipal = new JPanel(new BorderLayout(10, 10));
         panelPrincipal.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
-        JPanel panelFormulario = new JPanel(new GridLayout(3, 6, 10, 10));
+        JPanel panelFormulario = new JPanel(new GridLayout(4, 4, 10, 10));
 
         panelFormulario.add(new JLabel("Código:"));
         txtCodigo = new JTextField();
@@ -83,17 +89,13 @@ public class LibrosVista extends JFrame {
         txtAnio = new JTextField();
         panelFormulario.add(txtAnio);
 
-        panelFormulario.add(new JLabel("Cantidad:"));
+        panelFormulario.add(new JLabel("Cantidad Total:"));
         txtCantidad = new JTextField();
         panelFormulario.add(txtCantidad);
 
-        btnRegistrar = new JButton("Registrar libro");
-        btnRefrescar = new JButton("Refrescar tabla");
-        btnLimpiar = new JButton("Limpiar campos");
-
-        panelFormulario.add(btnRegistrar);
-        panelFormulario.add(btnRefrescar);
-        panelFormulario.add(btnLimpiar);
+        panelFormulario.add(new JLabel("Buscar (código o nombre):"));
+        txtBuscar = new JTextField();
+        panelFormulario.add(txtBuscar);
 
         panelPrincipal.add(panelFormulario, BorderLayout.NORTH);
 
@@ -106,70 +108,182 @@ public class LibrosVista extends JFrame {
         modeloTabla.addColumn("Año");
         modeloTabla.addColumn("Disponibles");
         modeloTabla.addColumn("Total");
+        modeloTabla.addColumn("Activo");
 
         tablaLibros = new JTable(modeloTabla);
         JScrollPane scroll = new JScrollPane(tablaLibros);
-
         panelPrincipal.add(scroll, BorderLayout.CENTER);
 
+        JPanel panelBotones = new JPanel(new GridLayout(2, 4, 10, 10));
+        btnRegistrar = new JButton("Registrar");
+        btnModificar = new JButton("Modificar");
+        btnEliminar = new JButton("Eliminar");
+        btnBuscarCodigo = new JButton("Buscar por Código");
+        btnBuscarNombre = new JButton("Buscar por Nombre");
+        btnMostrarTodos = new JButton("Mostrar Todos");
+        btnLimpiar = new JButton("Limpiar");
+
+        panelBotones.add(btnRegistrar);
+        panelBotones.add(btnModificar);
+        panelBotones.add(btnEliminar);
+        panelBotones.add(btnBuscarCodigo);
+        panelBotones.add(btnBuscarNombre);
+        panelBotones.add(btnMostrarTodos);
+        panelBotones.add(btnLimpiar);
+
+        panelPrincipal.add(panelBotones, BorderLayout.SOUTH);
         add(panelPrincipal);
 
         btnRegistrar.addActionListener(e -> registrarLibro());
-        btnRefrescar.addActionListener(e -> cargarTabla());
+        btnModificar.addActionListener(e -> modificarLibro());
+        btnEliminar.addActionListener(e -> eliminarLibro());
+        btnBuscarCodigo.addActionListener(e -> buscarPorCodigo());
+        btnBuscarNombre.addActionListener(e -> buscarPorNombre());
+        btnMostrarTodos.addActionListener(e -> cargarTablaCompleta());
         btnLimpiar.addActionListener(e -> limpiarCampos());
+
+        tablaLibros.getSelectionModel().addListSelectionListener(e -> {
+            int fila = tablaLibros.getSelectedRow();
+            if (fila != -1) {
+                txtCodigo.setText(modeloTabla.getValueAt(fila, 0).toString());
+                txtIsbn.setText(modeloTabla.getValueAt(fila, 1).toString());
+                txtTitulo.setText(modeloTabla.getValueAt(fila, 2).toString());
+                txtAutor.setText(modeloTabla.getValueAt(fila, 3).toString());
+                txtGenero.setText(modeloTabla.getValueAt(fila, 4).toString());
+                txtAnio.setText(modeloTabla.getValueAt(fila, 5).toString());
+                txtCantidad.setText(modeloTabla.getValueAt(fila, 7).toString());
+            }
+        });
     }
 
     private void registrarLibro() {
-        String codigo = txtCodigo.getText().trim();
-        String isbn = txtIsbn.getText().trim();
-        String titulo = txtTitulo.getText().trim();
-        String autor = txtAutor.getText().trim();
-        String genero = txtGenero.getText().trim();
-
-        int anio;
-        int cantidad;
-
         try {
-            anio = Integer.parseInt(txtAnio.getText().trim());
-            cantidad = Integer.parseInt(txtCantidad.getText().trim());
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Año y cantidad deben ser números enteros.");
-            return;
-        }
+            boolean exito = sistema.registrarLibro(
+                    txtCodigo.getText().trim(),
+                    txtIsbn.getText().trim(),
+                    txtTitulo.getText().trim(),
+                    txtAutor.getText().trim(),
+                    txtGenero.getText().trim(),
+                    Integer.parseInt(txtAnio.getText().trim()),
+                    Integer.parseInt(txtCantidad.getText().trim())
+            );
 
-        boolean exito = sistema.registrarLibro(codigo, isbn, titulo, autor, genero, anio, cantidad);
+            JOptionPane.showMessageDialog(this, sistema.getControlLibros().getUltimoMensaje());
 
-        if (exito) {
-            JOptionPane.showMessageDialog(this, "Libro registrado correctamente.");
-            limpiarCampos();
-            cargarTabla();
-        } else {
-            JOptionPane.showMessageDialog(this, "No se pudo registrar el libro.");
+            if (exito) {
+                limpiarCampos();
+                cargarTablaCompleta();
+            }
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Año y cantidad deben ser números enteros válidos.");
         }
     }
 
-    private void cargarTabla() {
+    private void modificarLibro() {
+        try {
+            boolean exito = sistema.modificarLibro(
+                    txtCodigo.getText().trim(),
+                    txtIsbn.getText().trim(),
+                    txtTitulo.getText().trim(),
+                    txtAutor.getText().trim(),
+                    txtGenero.getText().trim(),
+                    Integer.parseInt(txtAnio.getText().trim()),
+                    Integer.parseInt(txtCantidad.getText().trim())
+            );
+
+            JOptionPane.showMessageDialog(this, sistema.getControlLibros().getUltimoMensaje());
+
+            if (exito) {
+                limpiarCampos();
+                cargarTablaCompleta();
+            }
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Año y cantidad deben ser números enteros válidos.");
+        }
+    }
+
+    private void eliminarLibro() {
+        String codigo = txtCodigo.getText().trim();
+
+        if (codigo.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Seleccione o ingrese el código del libro.");
+            return;
+        }
+
+        boolean exito = sistema.eliminarLibro(codigo);
+        JOptionPane.showMessageDialog(this, sistema.getControlLibros().getUltimoMensaje());
+
+        if (exito) {
+            limpiarCampos();
+            cargarTablaCompleta();
+        }
+    }
+
+    private void buscarPorCodigo() {
+        String codigo = txtBuscar.getText().trim();
+
+        if (codigo.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Ingrese un código para buscar.");
+            return;
+        }
+
+        Libro libro = sistema.getControlLibros().buscarPorCodigo(codigo);
         modeloTabla.setRowCount(0);
 
-        Libro[] libros = sistema.getLibros();
-        int total = sistema.getTotalLibros();
+        if (libro != null) {
+            agregarLibroATabla(libro);
+        } else {
+            JOptionPane.showMessageDialog(this, "No se encontró ningún libro con ese código.");
+        }
+    }
 
-        for (int i = 0; i < total; i++) {
-            Libro libro = libros[i];
+    private void buscarPorNombre() {
+        String nombre = txtBuscar.getText().trim();
 
-            if (libro != null && libro.isActivo()) {
-                modeloTabla.addRow(new Object[]{
-                    libro.getCodigo(),
-                    libro.getIsbn(),
-                    libro.getTitulo(),
-                    libro.getAutor(),
-                    libro.getGenero(),
-                    libro.getAnio(),
-                    libro.getCantidadDisponible(),
-                    libro.getCantidadTotal()
-                });
+        if (nombre.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Ingrese un nombre para buscar.");
+            return;
+        }
+
+        modeloTabla.setRowCount(0);
+        Libro[] resultados = sistema.getControlLibros().buscarPorNombre(nombre);
+        boolean encontro = false;
+
+        for (int i = 0; i < resultados.length; i++) {
+            if (resultados[i] != null) {
+                agregarLibroATabla(resultados[i]);
+                encontro = true;
             }
         }
+
+        if (!encontro) {
+            JOptionPane.showMessageDialog(this, "No se encontraron libros con ese nombre.");
+        }
+    }
+
+    private void cargarTablaCompleta() {
+        modeloTabla.setRowCount(0);
+
+        for (int i = 0; i < sistema.getTotalLibros(); i++) {
+            Libro libro = sistema.getLibros()[i];
+            if (libro != null) {
+                agregarLibroATabla(libro);
+            }
+        }
+    }
+
+    private void agregarLibroATabla(Libro libro) {
+        modeloTabla.addRow(new Object[]{
+            libro.getCodigo(),
+            libro.getIsbn(),
+            libro.getTitulo(),
+            libro.getAutor(),
+            libro.getGenero(),
+            libro.getAnio(),
+            libro.getCantidadDisponible(),
+            libro.getCantidadTotal(),
+            libro.isActivo() ? "Sí" : "No"
+        });
     }
 
     private void limpiarCampos() {
@@ -180,5 +294,7 @@ public class LibrosVista extends JFrame {
         txtGenero.setText("");
         txtAnio.setText("");
         txtCantidad.setText("");
+        txtBuscar.setText("");
+        tablaLibros.clearSelection();
     }
 }

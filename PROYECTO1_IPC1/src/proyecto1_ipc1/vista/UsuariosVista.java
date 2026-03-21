@@ -26,27 +26,38 @@ import proyecto1_ipc1.modelo.Usuario;
 public class UsuariosVista extends JFrame {
 
     private final ControlBiblioteca sistema;
+    private final Usuario usuarioSesion;
+    private final String modo;
 
     private JTextField txtUsuario;
     private JTextField txtNombre;
+    private JTextField txtCarrera;
     private JTextField txtContrasena;
+    private JTextField txtBuscar;
 
-    private JButton btnRegistrarOperador;
-    private JButton btnRefrescar;
+    private JButton btnRegistrar;
+    private JButton btnModificar;
+    private JButton btnEliminar;
+    private JButton btnBuscarCodigo;
+    private JButton btnBuscarNombre;
+    private JButton btnMostrarTodos;
     private JButton btnLimpiar;
 
     private JTable tablaUsuarios;
     private DefaultTableModel modeloTabla;
 
-    public UsuariosVista(ControlBiblioteca sistema) {
+    public UsuariosVista(ControlBiblioteca sistema, Usuario usuarioSesion, String modo) {
         this.sistema = sistema;
+        this.usuarioSesion = usuarioSesion;
+        this.modo = modo;
         inicializarComponentes();
-        cargarTabla();
+        cargarTablaCompleta();
+        configurarModo();
     }
 
     private void inicializarComponentes() {
-        setTitle("Gestión de Usuarios");
-        setSize(850, 450);
+        setTitle(modo.equalsIgnoreCase("OPERADORES") ? "Gestión de Operadores" : "Gestión de Estudiantes");
+        setSize(1000, 530);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setResizable(false);
@@ -54,9 +65,9 @@ public class UsuariosVista extends JFrame {
         JPanel panelPrincipal = new JPanel(new BorderLayout(10, 10));
         panelPrincipal.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
-        JPanel panelFormulario = new JPanel(new GridLayout(2, 3, 10, 10));
+        JPanel panelFormulario = new JPanel(new GridLayout(5, 2, 10, 10));
 
-        panelFormulario.add(new JLabel("Usuario operador:"));
+        panelFormulario.add(new JLabel("Usuario / Carné:"));
         txtUsuario = new JTextField();
         panelFormulario.add(txtUsuario);
 
@@ -64,17 +75,17 @@ public class UsuariosVista extends JFrame {
         txtNombre = new JTextField();
         panelFormulario.add(txtNombre);
 
+        panelFormulario.add(new JLabel("Carrera:"));
+        txtCarrera = new JTextField();
+        panelFormulario.add(txtCarrera);
+
         panelFormulario.add(new JLabel("Contraseña:"));
         txtContrasena = new JTextField();
         panelFormulario.add(txtContrasena);
 
-        btnRegistrarOperador = new JButton("Registrar operador");
-        btnRefrescar = new JButton("Refrescar tabla");
-        btnLimpiar = new JButton("Limpiar campos");
-
-        panelFormulario.add(btnRegistrarOperador);
-        panelFormulario.add(btnRefrescar);
-        panelFormulario.add(btnLimpiar);
+        panelFormulario.add(new JLabel("Buscar (código o nombre):"));
+        txtBuscar = new JTextField();
+        panelFormulario.add(txtBuscar);
 
         panelPrincipal.add(panelFormulario, BorderLayout.NORTH);
 
@@ -88,58 +99,211 @@ public class UsuariosVista extends JFrame {
         tablaUsuarios = new JTable(modeloTabla);
         panelPrincipal.add(new JScrollPane(tablaUsuarios), BorderLayout.CENTER);
 
+        JPanel panelBotones = new JPanel(new GridLayout(2, 4, 10, 10));
+
+        btnRegistrar = new JButton(modo.equalsIgnoreCase("OPERADORES") ? "Registrar Operador" : "Registrar Estudiante");
+        btnModificar = new JButton("Modificar");
+        btnEliminar = new JButton("Eliminar");
+        btnBuscarCodigo = new JButton("Buscar por Código");
+        btnBuscarNombre = new JButton("Buscar por Nombre");
+        btnMostrarTodos = new JButton("Mostrar Todos");
+        btnLimpiar = new JButton("Limpiar");
+
+        panelBotones.add(btnRegistrar);
+        panelBotones.add(btnModificar);
+        panelBotones.add(btnEliminar);
+        panelBotones.add(btnBuscarCodigo);
+        panelBotones.add(btnBuscarNombre);
+        panelBotones.add(btnMostrarTodos);
+        panelBotones.add(btnLimpiar);
+
+        panelPrincipal.add(panelBotones, BorderLayout.SOUTH);
+
         add(panelPrincipal);
 
-        btnRegistrarOperador.addActionListener(e -> registrarOperador());
-        btnRefrescar.addActionListener(e -> cargarTabla());
+        btnRegistrar.addActionListener(e -> registrarUsuario());
+        btnModificar.addActionListener(e -> modificarUsuario());
+        btnEliminar.addActionListener(e -> eliminarUsuario());
+        btnBuscarCodigo.addActionListener(e -> buscarPorCodigo());
+        btnBuscarNombre.addActionListener(e -> buscarPorNombre());
+        btnMostrarTodos.addActionListener(e -> cargarTablaCompleta());
         btnLimpiar.addActionListener(e -> limpiarCampos());
+
+        tablaUsuarios.getSelectionModel().addListSelectionListener(e -> {
+            int fila = tablaUsuarios.getSelectedRow();
+            if (fila != -1) {
+                txtUsuario.setText(modeloTabla.getValueAt(fila, 1).toString());
+                txtNombre.setText(modeloTabla.getValueAt(fila, 2).toString());
+                txtCarrera.setText(modeloTabla.getValueAt(fila, 3).toString());
+            }
+        });
     }
 
-    private void registrarOperador() {
-        String usuario = txtUsuario.getText().trim();
+    private void configurarModo() {
+        if (modo.equalsIgnoreCase("OPERADORES")) {
+            txtCarrera.setText("N/A");
+            txtCarrera.setEnabled(false);
+        }
+
+        if (modo.equalsIgnoreCase("OPERADORES") && !usuarioSesion.esAdmin()) {
+            btnRegistrar.setEnabled(false);
+        }
+
+        if (!usuarioSesion.esAdmin()) {
+            btnEliminar.setEnabled(false);
+        }
+    }
+
+    private void registrarUsuario() {
+        if (modo.equalsIgnoreCase("OPERADORES")) {
+            if (!usuarioSesion.esAdmin()) {
+                JOptionPane.showMessageDialog(this, "Solo el administrador puede crear operadores.");
+                return;
+            }
+
+            boolean exito = sistema.registrarOperador(
+                    txtUsuario.getText().trim(),
+                    txtNombre.getText().trim(),
+                    txtContrasena.getText().trim()
+            );
+
+            JOptionPane.showMessageDialog(this, sistema.getControlUsuarios().getUltimoMensaje());
+
+            if (exito) {
+                limpiarCampos();
+                cargarTablaCompleta();
+            }
+        } else {
+            boolean exito = sistema.registrarEstudiante(
+                    txtUsuario.getText().trim(),
+                    txtNombre.getText().trim(),
+                    txtCarrera.getText().trim(),
+                    txtContrasena.getText().trim()
+            );
+
+            JOptionPane.showMessageDialog(this, sistema.getControlUsuarios().getUltimoMensaje());
+
+            if (exito) {
+                limpiarCampos();
+                cargarTablaCompleta();
+            }
+        }
+    }
+
+    private void modificarUsuario() {
+        String codigo = txtUsuario.getText().trim();
         String nombre = txtNombre.getText().trim();
+        String carrera = txtCarrera.getText().trim();
         String contrasena = txtContrasena.getText().trim();
 
-        if (usuario.isEmpty() || nombre.isEmpty() || contrasena.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Debe llenar todos los campos.");
+        boolean exito = sistema.modificarUsuario(codigo, nombre, carrera, contrasena, usuarioSesion);
+        JOptionPane.showMessageDialog(this, sistema.getControlUsuarios().getUltimoMensaje());
+
+        if (exito) {
+            limpiarCampos();
+            cargarTablaCompleta();
+        }
+    }
+
+    private void eliminarUsuario() {
+        String codigo = txtUsuario.getText().trim();
+
+        if (codigo.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Seleccione o ingrese el usuario/carné a eliminar.");
             return;
         }
 
-        boolean exito = sistema.registrarOperador(usuario, nombre, contrasena);
+        boolean exito = sistema.eliminarUsuario(codigo, usuarioSesion);
+        JOptionPane.showMessageDialog(this, sistema.getControlUsuarios().getUltimoMensaje());
 
         if (exito) {
-            JOptionPane.showMessageDialog(this, "Operador registrado correctamente.");
             limpiarCampos();
-            cargarTabla();
-        } else {
-            JOptionPane.showMessageDialog(this, "No se pudo registrar el operador.");
+            cargarTablaCompleta();
         }
     }
 
-    private void cargarTabla() {
+    private void buscarPorCodigo() {
+        String codigo = txtBuscar.getText().trim();
+
+        if (codigo.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Ingrese un código para buscar.");
+            return;
+        }
+
+        Usuario u = sistema.getControlUsuarios().buscarPorCodigo(codigo);
         modeloTabla.setRowCount(0);
 
-        Usuario[] usuarios = sistema.getUsuarios();
-        int total = sistema.getTotalUsuarios();
+        if (u != null && coincideConModo(u)) {
+            agregarUsuarioATabla(u);
+        } else {
+            JOptionPane.showMessageDialog(this, "No se encontró ningún usuario en este módulo.");
+        }
+    }
 
-        for (int i = 0; i < total; i++) {
-            Usuario u = usuarios[i];
+    private void buscarPorNombre() {
+        String nombre = txtBuscar.getText().trim();
 
-            if (u != null) {
-                modeloTabla.addRow(new Object[]{
-                    u.getRol(),
-                    u.getUsuario(),
-                    u.getNombreCompleto(),
-                    u.getCarrera(),
-                    u.isActivo() ? "Sí" : "No"
-                });
+        if (nombre.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Ingrese un nombre para buscar.");
+            return;
+        }
+
+        modeloTabla.setRowCount(0);
+        Usuario[] resultados = sistema.getControlUsuarios().buscarPorNombre(nombre);
+        boolean encontro = false;
+
+        for (int i = 0; i < resultados.length; i++) {
+            if (resultados[i] != null && coincideConModo(resultados[i])) {
+                agregarUsuarioATabla(resultados[i]);
+                encontro = true;
             }
         }
+
+        if (!encontro) {
+            JOptionPane.showMessageDialog(this, "No se encontraron usuarios.");
+        }
+    }
+
+    private void cargarTablaCompleta() {
+        modeloTabla.setRowCount(0);
+
+        for (int i = 0; i < sistema.getTotalUsuarios(); i++) {
+            Usuario u = sistema.getUsuarios()[i];
+            if (u != null && coincideConModo(u)) {
+                agregarUsuarioATabla(u);
+            }
+        }
+    }
+
+    private boolean coincideConModo(Usuario u) {
+        if (modo.equalsIgnoreCase("OPERADORES")) {
+            return u.esOperador();
+        }
+        return u.esEstudiante();
+    }
+
+    private void agregarUsuarioATabla(Usuario u) {
+        modeloTabla.addRow(new Object[]{
+            u.getRol(),
+            u.getUsuario(),
+            u.getNombreCompleto(),
+            u.getCarrera(),
+            u.isActivo() ? "Sí" : "No"
+        });
     }
 
     private void limpiarCampos() {
         txtUsuario.setText("");
         txtNombre.setText("");
         txtContrasena.setText("");
+        txtBuscar.setText("");
+
+        if (modo.equalsIgnoreCase("ESTUDIANTES")) {
+            txtCarrera.setText("");
+        } else {
+            txtCarrera.setText("N/A");
+        }
+
+        tablaUsuarios.clearSelection();
     }
 }

@@ -1,1 +1,2 @@
 ESTUDIANTE;202501086;FortniteG10;Giovanni Josue Villegas Alvarez;Ing.Ciencias y Sistemas;true
+OPERADOR;operador1;1234;Juan Perez;N/A;true

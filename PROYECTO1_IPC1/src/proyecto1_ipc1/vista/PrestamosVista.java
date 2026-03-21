@@ -3,6 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package proyecto1_ipc1.vista;
+
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import javax.swing.BorderFactory;
@@ -17,6 +18,7 @@ import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 import proyecto1_ipc1.controlador.ControlBiblioteca;
 import proyecto1_ipc1.modelo.Prestamo;
+import proyecto1_ipc1.modelo.Usuario;
 import proyecto1_ipc1.utilidades.FechaUtil;
 
 /**
@@ -26,6 +28,8 @@ import proyecto1_ipc1.utilidades.FechaUtil;
 public class PrestamosVista extends JFrame {
 
     private final ControlBiblioteca sistema;
+    private final Usuario estudianteActual;
+    private final boolean modoHistorial;
 
     private JTextField txtCarnet;
     private JTextField txtCodigoLibro;
@@ -40,8 +44,15 @@ public class PrestamosVista extends JFrame {
     private DefaultTableModel modeloTabla;
 
     public PrestamosVista(ControlBiblioteca sistema) {
+        this(sistema, null, false);
+    }
+
+    public PrestamosVista(ControlBiblioteca sistema, Usuario estudianteActual, boolean modoHistorial) {
         this.sistema = sistema;
+        this.estudianteActual = estudianteActual;
+        this.modoHistorial = modoHistorial;
         inicializarComponentes();
+        configurarModo();
         cargarTabla();
     }
 
@@ -103,8 +114,33 @@ public class PrestamosVista extends JFrame {
         btnLimpiar.addActionListener(e -> limpiarCampos());
     }
 
+    private void configurarModo() {
+        if (estudianteActual != null) {
+            txtCarnet.setText(estudianteActual.getUsuario());
+            txtCarnet.setEditable(false);
+            txtCarnet.setEnabled(false);
+
+            btnRegistrarDevolucion.setEnabled(false);
+            txtCodigoPrestamo.setEnabled(false);
+
+            if (modoHistorial) {
+                setTitle("Historial de Préstamos");
+                btnRegistrarPrestamo.setEnabled(false);
+                txtCodigoLibro.setEnabled(false);
+            } else {
+                setTitle("Solicitar Préstamo");
+            }
+        }
+    }
+
     private void registrarPrestamo() {
-        String carnet = txtCarnet.getText().trim();
+        String carnet;
+        if (estudianteActual != null) {
+            carnet = estudianteActual.getUsuario();
+        } else {
+            carnet = txtCarnet.getText().trim();
+        }
+
         String codigoLibro = txtCodigoLibro.getText().trim();
 
         if (carnet.isEmpty() || codigoLibro.isEmpty()) {
@@ -113,17 +149,20 @@ public class PrestamosVista extends JFrame {
         }
 
         boolean exito = sistema.registrarPrestamo(carnet, codigoLibro);
+        JOptionPane.showMessageDialog(this, sistema.getControlPrestamos().getUltimoMensaje());
 
         if (exito) {
-    JOptionPane.showMessageDialog(this, sistema.getControlPrestamos().getUltimoMensaje());
-    limpiarCampos();
-    cargarTabla();
-        } else {
-    JOptionPane.showMessageDialog(this, sistema.getControlPrestamos().getUltimoMensaje());
-}
+            limpiarCampos();
+            cargarTabla();
+        }
     }
 
     private void registrarDevolucion() {
+        if (estudianteActual != null) {
+            JOptionPane.showMessageDialog(this, "Solo operador o administrador pueden registrar devoluciones.");
+            return;
+        }
+
         String codigoPrestamo = txtCodigoPrestamo.getText().trim();
 
         if (codigoPrestamo.isEmpty()) {
@@ -132,13 +171,12 @@ public class PrestamosVista extends JFrame {
         }
 
         boolean exito = sistema.registrarDevolucion(codigoPrestamo);
+        JOptionPane.showMessageDialog(this, sistema.getControlPrestamos().getUltimoMensaje());
+
         if (exito) {
-    JOptionPane.showMessageDialog(this, sistema.getControlPrestamos().getUltimoMensaje());
-    limpiarCampos();
-    cargarTabla();
-        } else {
-    JOptionPane.showMessageDialog(this, sistema.getControlPrestamos().getUltimoMensaje());
-}
+            limpiarCampos();
+            cargarTabla();
+        }
     }
 
     private void cargarTabla() {
@@ -150,29 +188,37 @@ public class PrestamosVista extends JFrame {
         for (int i = 0; i < total; i++) {
             Prestamo p = prestamos[i];
 
-            if (p != null) {
-                String estadoMostrar = p.getEstado();
-
-                if (FechaUtil.estaVencido(p.getFechaLimite(), p.getEstado())) {
-                    estadoMostrar = "VENCIDO";
-                }
-
-                modeloTabla.addRow(new Object[]{
-                    p.getCodigoPrestamo(),
-                    p.getCarnet(),
-                    p.getCodigoLibro(),
-                    p.getFechaPrestamo(),
-                    p.getFechaLimite(),
-                    p.getFechaDevolucion(),
-                    estadoMostrar
-                });
+            if (p == null) {
+                continue;
             }
+
+            if (estudianteActual != null && !p.getCarnet().equalsIgnoreCase(estudianteActual.getUsuario())) {
+                continue;
+            }
+
+            String estadoMostrar = p.getEstado();
+
+            if (FechaUtil.estaVencido(p.getFechaLimite(), p.getEstado())) {
+                estadoMostrar = "VENCIDO";
+            }
+
+            modeloTabla.addRow(new Object[]{
+                p.getCodigoPrestamo(),
+                p.getCarnet(),
+                p.getCodigoLibro(),
+                p.getFechaPrestamo(),
+                p.getFechaLimite(),
+                p.getFechaDevolucion(),
+                estadoMostrar
+            });
         }
     }
 
     private void limpiarCampos() {
-        txtCarnet.setText("");
+        if (estudianteActual == null) {
+            txtCarnet.setText("");
+            txtCodigoPrestamo.setText("");
+        }
         txtCodigoLibro.setText("");
-        txtCodigoPrestamo.setText("");
     }
 }

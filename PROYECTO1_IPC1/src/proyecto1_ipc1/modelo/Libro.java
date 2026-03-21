@@ -107,6 +107,9 @@ public class Libro {
     public int getCantidadPrestada() {
         return cantidadTotal - cantidadDisponible;
     }
-}
-    
 
+    public String toFileLine() {
+        return codigo + ";" + isbn + ";" + titulo + ";" + autor + ";" + genero + ";"
+                + anio + ";" + cantidadTotal + ";" + cantidadDisponible + ";" + activo;
+    }
+}

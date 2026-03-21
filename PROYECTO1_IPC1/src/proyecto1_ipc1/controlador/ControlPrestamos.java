@@ -3,10 +3,12 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package proyecto1_ipc1.controlador;
+
 import proyecto1_ipc1.modelo.Libro;
 import proyecto1_ipc1.modelo.Prestamo;
 import proyecto1_ipc1.modelo.Usuario;
 import proyecto1_ipc1.utilidades.FechaUtil;
+
 /**
  *
  * @author Gio
@@ -94,6 +96,7 @@ public class ControlPrestamos {
         libro.setCantidadDisponible(libro.getCantidadDisponible() - 1);
         sistema.agregarPrestamoAHistorial(carnet, prestamo);
         sistema.guardarPrestamos();
+        sistema.guardarLibros();
         sistema.getBitacora().registrar("CREAR", carnet, "PRESTAMOS");
 
         ultimoMensaje = "Préstamo registrado con código " + codigoPrestamo;
@@ -126,6 +129,7 @@ public class ControlPrestamos {
         }
 
         sistema.guardarPrestamos();
+        sistema.guardarLibros();
         sistema.getBitacora().registrar("MODIFICAR", "admin", "DEVOLUCIONES");
         ultimoMensaje = "Devolución registrada correctamente.";
         return true;
@@ -136,9 +140,9 @@ public class ControlPrestamos {
 
         for (int i = 0; i < sistema.getTotalPrestamos(); i++) {
             Prestamo p = sistema.getPrestamos()[i];
-            if (p != null &&
-                p.getCarnet().equalsIgnoreCase(carnet) &&
-                Prestamo.ESTADO_ACTIVO.equalsIgnoreCase(p.getEstado())) {
+            if (p != null
+                    && p.getCarnet().equalsIgnoreCase(carnet)
+                    && Prestamo.ESTADO_ACTIVO.equalsIgnoreCase(p.getEstado())) {
                 contador++;
             }
         }
@@ -149,9 +153,9 @@ public class ControlPrestamos {
     public boolean tienePrestamosVencidos(String carnet) {
         for (int i = 0; i < sistema.getTotalPrestamos(); i++) {
             Prestamo p = sistema.getPrestamos()[i];
-            if (p != null &&
-                p.getCarnet().equalsIgnoreCase(carnet) &&
-                FechaUtil.estaVencido(p.getFechaLimite(), p.getEstado())) {
+            if (p != null
+                    && p.getCarnet().equalsIgnoreCase(carnet)
+                    && FechaUtil.estaVencido(p.getFechaLimite(), p.getEstado())) {
                 return true;
             }
         }

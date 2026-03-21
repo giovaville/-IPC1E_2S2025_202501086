@@ -73,6 +73,11 @@ public class LoginVista extends JFrame {
         String usuario = txtUsuario.getText().trim();
         String contrasena = new String(txtContrasena.getPassword());
 
+        if (usuario.isEmpty() || contrasena.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Debe completar usuario y contraseña.");
+            return;
+        }
+
         Usuario u = sistema.autenticar(usuario, contrasena);
 
         if (u == null) {

@@ -94,4 +94,3 @@ public class Usuario {
         return rol + ";" + usuario + ";" + contrasena + ";" + nombreCompleto + ";" + carrera + ";" + activo;
     }
 }
-

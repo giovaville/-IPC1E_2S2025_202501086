@@ -3,27 +3,34 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package proyecto1_ipc1.utilidades;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import proyecto1_ipc1.modelo.Libro;
 import proyecto1_ipc1.modelo.Prestamo;
 import proyecto1_ipc1.modelo.Usuario;
+
 /**
  *
  * @author Gio
  */
 public class ArchivoManager {
-    
-      private final String rutaCuentas;
+
+    private final String rutaCuentas;
+    private final String rutaLibros;
     private final String rutaPrestamos;
 
-    public ArchivoManager(String rutaCuentas, String rutaPrestamos) {
+    public ArchivoManager(String rutaCuentas, String rutaLibros, String rutaPrestamos) {
         this.rutaCuentas = rutaCuentas;
+        this.rutaLibros = rutaLibros;
         this.rutaPrestamos = rutaPrestamos;
+
         asegurarArchivo(rutaCuentas);
+        asegurarArchivo(rutaLibros);
         asegurarArchivo(rutaPrestamos);
     }
 
@@ -68,6 +75,49 @@ public class ArchivoManager {
         return contador;
     }
 
+    public int cargarLibros(Libro[] libros) {
+        int contador = 0;
+
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(rutaLibros));
+            String linea;
+
+            while ((linea = br.readLine()) != null && contador < libros.length) {
+                if (linea.trim().isEmpty()) {
+                    continue;
+                }
+
+                String[] partes = linea.split(";", -1);
+
+                if (partes.length >= 9) {
+                    Libro libro = new Libro(
+                            partes[0],
+                            partes[1],
+                            partes[2],
+                            partes[3],
+                            partes[4],
+                            Integer.parseInt(partes[5]),
+                            Integer.parseInt(partes[6])
+                    );
+
+                    libro.setCantidadDisponible(Integer.parseInt(partes[7]));
+                    libro.setActivo(Boolean.parseBoolean(partes[8]));
+
+                    libros[contador] = libro;
+                    contador++;
+                }
+            }
+
+            br.close();
+        } catch (IOException e) {
+            System.out.println("Error al cargar libros.");
+        } catch (NumberFormatException e) {
+            System.out.println("Error en formato de datos de libros.");
+        }
+
+        return contador;
+    }
+
     public int cargarPrestamos(Prestamo[] prestamos) {
         int contador = 0;
 
@@ -104,7 +154,7 @@ public class ArchivoManager {
             BufferedWriter bw = new BufferedWriter(new FileWriter(rutaCuentas, false));
 
             for (int i = 0; i < totalUsuarios; i++) {
-                if (usuarios[i] != null && usuarios[i].isActivo()) {
+                if (usuarios[i] != null) {
                     bw.write(usuarios[i].toFileLine());
                     bw.newLine();
                 }
@@ -113,6 +163,23 @@ public class ArchivoManager {
             bw.close();
         } catch (IOException e) {
             System.out.println("Error al guardar usuarios.");
+        }
+    }
+
+    public void guardarLibros(Libro[] libros, int totalLibros) {
+        try {
+            BufferedWriter bw = new BufferedWriter(new FileWriter(rutaLibros, false));
+
+            for (int i = 0; i < totalLibros; i++) {
+                if (libros[i] != null) {
+                    bw.write(libros[i].toFileLine());
+                    bw.newLine();
+                }
+            }
+
+            bw.close();
+        } catch (IOException e) {
+            System.out.println("Error al guardar libros.");
         }
     }
 

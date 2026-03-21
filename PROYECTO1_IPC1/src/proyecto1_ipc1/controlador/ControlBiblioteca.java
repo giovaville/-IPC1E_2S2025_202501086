@@ -3,6 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package proyecto1_ipc1.controlador;
+
 import proyecto1_ipc1.modelo.HistorialPrestamos;
 import proyecto1_ipc1.modelo.Libro;
 import proyecto1_ipc1.modelo.Prestamo;
@@ -10,6 +11,7 @@ import proyecto1_ipc1.modelo.Usuario;
 import proyecto1_ipc1.reportes.GeneradorReportes;
 import proyecto1_ipc1.utilidades.ArchivoManager;
 import proyecto1_ipc1.utilidades.Bitacora;
+
 /**
  *
  * @author Gio
@@ -47,10 +49,11 @@ public class ControlBiblioteca {
             historiales[i] = new HistorialPrestamos();
         }
 
-        archivoManager = new ArchivoManager("cuentas.txt", "prestamos.txt");
+        archivoManager = new ArchivoManager("cuentas.txt", "libros.txt", "prestamos.txt");
         bitacora = new Bitacora("bitacora.txt");
 
         totalUsuarios = archivoManager.cargarUsuarios(usuarios);
+        totalLibros = archivoManager.cargarLibros(libros);
         totalPrestamos = archivoManager.cargarPrestamos(prestamos);
 
         controlUsuarios = new ControlUsuarios(this);
@@ -70,6 +73,7 @@ public class ControlBiblioteca {
             agregarLibroInterno(new Libro("L003", "9780134494166", "Effective Java", "Joshua Bloch", "Programacion", 2018, 5));
             agregarLibroInterno(new Libro("L004", "9788497592208", "Cien anios de soledad", "Gabriel Garcia Marquez", "Literatura", 1967, 2));
             agregarLibroInterno(new Libro("L005", "9786070742502", "El principito", "Antoine de Saint-Exupery", "Literatura", 1943, 4));
+            guardarLibros();
         }
     }
 
@@ -102,6 +106,8 @@ public class ControlBiblioteca {
                 }
             }
         }
+
+        guardarLibros();
     }
 
     public Usuario autenticar(String usuario, String contrasena) {
@@ -116,9 +122,27 @@ public class ControlBiblioteca {
         return controlUsuarios.registrarOperador(usuario, nombre, contrasena);
     }
 
+    public boolean modificarUsuario(String usuarioOriginal, String nuevoNombre, String nuevaCarrera,
+                                    String nuevaContrasena, Usuario usuarioSesion) {
+        return controlUsuarios.modificarUsuario(usuarioOriginal, nuevoNombre, nuevaCarrera, nuevaContrasena, usuarioSesion);
+    }
+
+    public boolean eliminarUsuario(String usuario, Usuario usuarioSesion) {
+        return controlUsuarios.eliminarUsuario(usuario, usuarioSesion);
+    }
+
     public boolean registrarLibro(String codigo, String isbn, String titulo, String autor,
                                   String genero, int anio, int cantidad) {
         return controlLibros.registrarLibro(codigo, isbn, titulo, autor, genero, anio, cantidad);
+    }
+
+    public boolean modificarLibro(String codigoOriginal, String isbn, String titulo, String autor,
+                                  String genero, int anio, int cantidadTotal) {
+        return controlLibros.modificarLibro(codigoOriginal, isbn, titulo, autor, genero, anio, cantidadTotal);
+    }
+
+    public boolean eliminarLibro(String codigo) {
+        return controlLibros.eliminarLibro(codigo);
     }
 
     public boolean registrarPrestamo(String carnet, String codigoLibro) {
@@ -176,6 +200,22 @@ public class ControlBiblioteca {
         }
         return null;
     }
+    
+
+   public int contarPrestamosActivosDeLibro(String codigoLibro) {
+    int contador = 0;
+
+    for (int i = 0; i < totalPrestamos; i++) {
+        Prestamo p = prestamos[i];
+        if (p != null
+                && Prestamo.ESTADO_ACTIVO.equalsIgnoreCase(p.getEstado())
+                && p.getCodigoLibro().equalsIgnoreCase(codigoLibro)) {
+            contador++;
+        }
+    }
+
+    return contador;
+}
 
     public boolean agregarUsuarioInterno(Usuario usuario) {
         if (totalUsuarios >= MAX_USUARIOS) {
@@ -206,6 +246,10 @@ public class ControlBiblioteca {
 
     public void guardarUsuarios() {
         archivoManager.guardarUsuarios(usuarios, totalUsuarios);
+    }
+
+    public void guardarLibros() {
+        archivoManager.guardarLibros(libros, totalLibros);
     }
 
     public void guardarPrestamos() {
@@ -265,5 +309,5 @@ public class ControlBiblioteca {
 
     public GeneradorReportes getGeneradorReportes() {
         return generadorReportes;
-    }
+    }   
 }

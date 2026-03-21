@@ -63,7 +63,7 @@ public class MenuAdministrador extends JFrame {
         add(panel);
 
         btnOperadores.addActionListener(e -> {
-            UsuariosVista vista = new UsuariosVista(sistema);
+            UsuariosVista vista = new UsuariosVista(sistema, admin, "OPERADORES");
             vista.setVisible(true);
         });
 
@@ -73,7 +73,7 @@ public class MenuAdministrador extends JFrame {
         });
 
         btnEstudiantes.addActionListener(e -> {
-            UsuariosVista vista = new UsuariosVista(sistema);
+            UsuariosVista vista = new UsuariosVista(sistema, admin, "ESTUDIANTES");
             vista.setVisible(true);
         });
 

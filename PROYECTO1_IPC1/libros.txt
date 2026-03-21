@@ -1,0 +1,5 @@
+L001;9780135166307;Clean Code;Robert C. Martin;Programacion;2008;4;2;true
+L002;9780132350884;Clean Architecture;Robert C. Martin;Arquitectura;2017;3;3;true
+L003;9780134494166;Effective Java;Joshua Bloch;Programacion;2018;5;5;true
+L004;9788497592208;Cien anios de soledad;Gabriel Garcia Marquez;Literatura;1967;2;2;true
+L005;9786070742502;El principito;Antoine de Saint-Exupery;Literatura;1943;4;4;true

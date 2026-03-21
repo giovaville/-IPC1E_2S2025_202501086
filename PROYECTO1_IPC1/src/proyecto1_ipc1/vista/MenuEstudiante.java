@@ -15,6 +15,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import proyecto1_ipc1.controlador.ControlBiblioteca;
 import proyecto1_ipc1.modelo.Usuario;
+
 /**
  *
  * @author Gio
@@ -61,12 +62,12 @@ public class MenuEstudiante extends JFrame {
         add(panel);
 
         btnPrestamo.addActionListener(e -> {
-            PrestamosVista vista = new PrestamosVista(sistema);
+            PrestamosVista vista = new PrestamosVista(sistema, estudiante, false);
             vista.setVisible(true);
         });
 
         btnHistorial.addActionListener(e -> {
-            PrestamosVista vista = new PrestamosVista(sistema);
+            PrestamosVista vista = new PrestamosVista(sistema, estudiante, true);
             vista.setVisible(true);
         });
 

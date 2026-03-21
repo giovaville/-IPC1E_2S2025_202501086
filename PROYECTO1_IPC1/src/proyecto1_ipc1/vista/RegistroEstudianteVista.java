@@ -84,10 +84,10 @@ public class RegistroEstudianteVista extends JFrame {
         boolean exito = sistema.registrarEstudiante(carnet, nombre, carrera, contrasena);
 
         if (exito) {
-            JOptionPane.showMessageDialog(this, "Estudiante registrado correctamente.");
+            JOptionPane.showMessageDialog(this, sistema.getControlUsuarios().getUltimoMensaje());
             dispose();
         } else {
-            JOptionPane.showMessageDialog(this, "No se pudo registrar el estudiante.");
+            JOptionPane.showMessageDialog(this, sistema.getControlUsuarios().getUltimoMensaje());
         }
     }
 }

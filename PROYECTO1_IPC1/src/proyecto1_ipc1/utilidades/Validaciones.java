@@ -42,4 +42,24 @@ public class Validaciones {
             return false;
         }
     }
+
+    public static boolean esAnioCoherente(int anio) {
+        return anio >= 1000 && anio <= 2100;
+    }
+
+    public static boolean soloLetrasYNumerosBasico(String texto) {
+        if (texto == null || texto.trim().isEmpty()) {
+            return false;
+        }
+
+        for (int i = 0; i < texto.length(); i++) {
+            char c = texto.charAt(i);
+            if (!(Character.isLetterOrDigit(c) || Character.isSpaceChar(c) ||
+                  c == '.' || c == '-' || c == '_' || c == ',')) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }

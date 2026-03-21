@@ -14,6 +14,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import proyecto1_ipc1.controlador.ControlBiblioteca;
 import proyecto1_ipc1.modelo.Usuario;
+
 /**
  *
  * @author Gio
@@ -65,7 +66,7 @@ public class MenuOperador extends JFrame {
         });
 
         btnEstudiantes.addActionListener(e -> {
-            UsuariosVista vista = new UsuariosVista(sistema);
+            UsuariosVista vista = new UsuariosVista(sistema, operador, "ESTUDIANTES");
             vista.setVisible(true);
         });
 

@@ -15,6 +15,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import proyecto1_ipc1.controlador.ControlBiblioteca;
+
 /**
  *
  * @author Gio
@@ -25,6 +26,7 @@ public class ReportesVista extends JFrame {
 
     private JButton btnPrestamosVencidos;
     private JButton btnLibrosDisponibles;
+    private JButton btnLibrosMasPrestados;
     private JButton btnEstudiantesActivos;
     private JTextArea txtResultado;
 
@@ -35,7 +37,7 @@ public class ReportesVista extends JFrame {
 
     private void inicializarComponentes() {
         setTitle("Reportes");
-        setSize(600, 400);
+        setSize(700, 420);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setResizable(false);
@@ -47,14 +49,16 @@ public class ReportesVista extends JFrame {
         lblTitulo.setFont(new Font("Arial", Font.BOLD, 18));
         panelPrincipal.add(lblTitulo, BorderLayout.NORTH);
 
-        JPanel panelBotones = new JPanel(new GridLayout(3, 1, 10, 10));
+        JPanel panelBotones = new JPanel(new GridLayout(4, 1, 10, 10));
 
         btnPrestamosVencidos = new JButton("Reporte de Préstamos Vencidos");
         btnLibrosDisponibles = new JButton("Reporte de Libros Disponibles");
+        btnLibrosMasPrestados = new JButton("Reporte 5 Libros Más Prestados");
         btnEstudiantesActivos = new JButton("Reporte de Estudiantes Activos");
 
         panelBotones.add(btnPrestamosVencidos);
         panelBotones.add(btnLibrosDisponibles);
+        panelBotones.add(btnLibrosMasPrestados);
         panelBotones.add(btnEstudiantesActivos);
 
         panelPrincipal.add(panelBotones, BorderLayout.WEST);
@@ -71,6 +75,7 @@ public class ReportesVista extends JFrame {
 
         btnPrestamosVencidos.addActionListener(e -> generarPrestamosVencidos());
         btnLibrosDisponibles.addActionListener(e -> generarLibrosDisponibles());
+        btnLibrosMasPrestados.addActionListener(e -> generarLibrosMasPrestados());
         btnEstudiantesActivos.addActionListener(e -> generarEstudiantesActivos());
     }
 
@@ -84,6 +89,12 @@ public class ReportesVista extends JFrame {
         String archivo = sistema.getGeneradorReportes().generarLibrosDisponibles();
         txtResultado.setText("Reporte generado correctamente:\n\n" + archivo);
         JOptionPane.showMessageDialog(this, "Reporte de libros disponibles generado.");
+    }
+
+    private void generarLibrosMasPrestados() {
+        String archivo = sistema.getGeneradorReportes().generarCincoLibrosMasPrestados();
+        txtResultado.setText("Reporte generado correctamente:\n\n" + archivo);
+        JOptionPane.showMessageDialog(this, "Reporte de 5 libros más prestados generado.");
     }
 
     private void generarEstudiantesActivos() {

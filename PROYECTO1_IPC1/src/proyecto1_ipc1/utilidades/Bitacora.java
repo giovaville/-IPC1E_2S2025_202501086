@@ -3,17 +3,19 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package proyecto1_ipc1.utilidades;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+
 /**
  *
  * @author Gio
  */
 public class Bitacora {
-    
-       private final String ruta;
+
+    private final String ruta;
 
     public Bitacora(String ruta) {
         this.ruta = ruta;
